@@ -5,12 +5,12 @@
 # offer that as default when asking for the value to be displayed
 
 def ask_with_default(question, default='')
-  user_answer = ask(question).strip
+  user_answer = ask("#{question} (default: #{default.to_s})").strip
   user_answer.empty? ? default : user_answer
 end
 
 # generate a model class
-model_name_and_attributes = ask_with_default("Define the model in Rails resource generate style. (e.g country name:string population:integer)", "country name:string population:integer")
+model_name_and_attributes = ask_with_default("Define the model in Rails resource generate style.", "country name:string population:integer")
 model_name_and_attributes = model_name_and_attributes.split(/\s+/).select { |token| !token.empty? }
 model_name, attributes = model_name_and_attributes.first.downcase, model_name_and_attributes[1..-1]
 generate(:resource, model_name, *attributes.join(' '))
@@ -23,19 +23,19 @@ gem "balinterdi-acts_as_trivia", :lib => "acts_as_trivia", :source => "http://ge
 rake "gems:unpack"
 
 # create acts_as_trivia related controllers and views and create a trivia question
-trivia_about = ask_with_default("Which attribute of the model should the trivia be about? (e.g population)", "population")
-trivia_displayed = ask_with_default("Which attribute of the model should be displayed in the trivia? (e.g name)", "name")
+trivia_about = ask_with_default("Which attribute of the model should the trivia be about?", "population")
+trivia_displayed = ask_with_default("Which attribute of the model should be displayed in the trivia?", "name")
 generate(:acts_as_trivia, model_name, trivia_about, trivia_displayed)
 
 rake "db:migrate"
 
 # create a default user
 user_name = ask("A user name to create?")
-run %(./script/runner "User.create(:login => '#{user_name}', :password => '#{user_name}')")
+run %(./script/runner "User.create(:login => '#{user_name}', :password => '#{user_name}')") unless user_name.empty?
 
 # create some model instances for the trivia (e.g countries)
 attribute_names = attributes.map{ |attr_and_type| attr_and_type.split(":").first }
-num_model_instances = ask_with_default("How many #{model_name} instances would you like to create? (0 to skip this)", 0).to_i
+num_model_instances = ask_with_default("How many #{model_name} instances would you like to create?", 0).to_i
 num_model_instances.times do |i|
   puts "#{i+1}. instance"
   attr_hash = {}
